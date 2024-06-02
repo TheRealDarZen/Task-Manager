@@ -4,6 +4,8 @@ from tkinter import messagebox
 from TaskManager import TaskManager
 from UserManager import UserManager
 
+from TaskApp import TaskApp
+
 class LoginApp:
     def __init__(self, root):
         self.root = root
