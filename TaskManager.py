@@ -16,7 +16,8 @@ class TaskManager:
         with shelve.open(self.db_name, writeback=True) as db:
             tasks = db.get(username, [])
             for task in tasks:
-                if task['status'] != 'Completed' and datetime.strptime(task['due_date'], '%Y-%m-%d') < datetime.now():
+                due_datetime = datetime.strptime(task['due_date'] + ' ' + task['due_time'], '%Y-%m-%d %H:%M')
+                if task['status'] != 'Completed' and due_datetime < datetime.now():
                     task['status'] = 'Late'
             db[username] = tasks
             return tasks
