@@ -37,7 +37,7 @@ class TaskApp:
 
         self.priority_label = tk.Label(task_input_frame, text='Priority:')
         self.priority_label.grid(row=3, column=0, sticky='e', padx=5, pady=5)
-        self.priority_combobox = ttk.Combobox(task_input_frame, values=['Highest', 'High', 'Moderate', 'Low'])
+        self.priority_combobox = ttk.Combobox(task_input_frame, values=['Highest', 'High', 'Moderate', 'Low'], state='readonly')
         self.priority_combobox.current(2)
         self.priority_combobox.grid(row=3, column=1, padx=5, pady=5)
 
@@ -47,7 +47,7 @@ class TaskApp:
         # Sorting pending tasks (without frame)
         self.sort_label = tk.Label(self.root, text='Sort By:')
         self.sort_label.pack()
-        self.sort_combobox = ttk.Combobox(self.root, values=['Date', 'Name', 'Status', 'Priority'])
+        self.sort_combobox = ttk.Combobox(self.root, values=['Date', 'Name', 'Status', 'Priority'], state='readonly')
         self.sort_combobox.current(0)
         self.sort_combobox.bind("<<ComboboxSelected>>", self.sort_tasks)
         self.sort_combobox.pack()
@@ -58,15 +58,11 @@ class TaskApp:
 
         self.pending_tasks_label = tk.Label(pending_tasks_frame, text='Pending Tasks:')
         self.pending_tasks_label.pack()
-        self.task_listbox = tk.Listbox(pending_tasks_frame, width=100)
+        self.task_listbox = tk.Listbox(pending_tasks_frame, width=70)
         self.task_listbox.pack(pady=5)
 
         self.complete_button = tk.Button(pending_tasks_frame, text='Mark as Completed', command=self.complete_task)
         self.complete_button.pack(pady=5)
-
-        self.clear_all_pending_button = tk.Button(pending_tasks_frame, text='Clear All Pending Tasks',
-                                                  command=self.clear_all_pending_tasks)
-        self.clear_all_pending_button.pack(pady=5)
 
         # Frame for completed tasks
         completed_tasks_frame = tk.Frame(self.root)
@@ -74,14 +70,26 @@ class TaskApp:
 
         self.completed_tasks_label = tk.Label(completed_tasks_frame, text='Completed Tasks:')
         self.completed_tasks_label.pack()
-        self.completed_listbox = tk.Listbox(completed_tasks_frame, width=100)
+        self.completed_listbox = tk.Listbox(completed_tasks_frame, width=70)
         self.completed_listbox.pack(pady=5)
 
-        self.clear_all_completed_button = tk.Button(completed_tasks_frame, text='Clear All Completed Tasks',
-                                                    command=self.clear_all_completed_tasks)
-        self.clear_all_completed_button.pack(pady=5)
+        # Frame for deleting tasks
+        delete_tasks_buttons_frame = tk.Frame(self.root)
+        delete_tasks_buttons_frame.pack(padx=10, pady=10, fill='x')
+
+        self.delete_task_button = tk.Button(delete_tasks_buttons_frame, text='Delete Task', command=self.delete_task, padx=10)
+        self.delete_task_button.grid(row=0, column=1, columnspan=2, pady=5)
+
+        self.clear_all_pending_button = tk.Button(delete_tasks_buttons_frame, text='Clear All Pending Tasks',
+                                                  command=self.clear_all_pending_tasks, padx=10)
+        self.clear_all_pending_button.grid(row=0, column=3, columnspan=2, pady=5)
+
+        self.clear_all_completed_button = tk.Button(delete_tasks_buttons_frame, text='Clear All Completed Tasks',
+                                                    command=self.clear_all_completed_tasks, padx=10)
+        self.clear_all_completed_button.grid(row=0, column=5, columnspan=2, pady=5)
 
         self.load_tasks()
+
 
     def add_task(self):
         task_name = self.task_entry.get()
@@ -146,6 +154,19 @@ class TaskApp:
         completed_tasks = self.manager.get_completed_tasks(self.username)
         for task in completed_tasks:
             self.completed_listbox.insert(tk.END, f"{task['name']} - {task['due_date']} - {task['status']}")
+
+    def delete_task(self):
+        selected_task = self.task_listbox.get(tk.ACTIVE)
+        if selected_task:
+            task_name = selected_task.split(' - ')[0]
+            self.manager.delete_task(self.username, task_name)
+            self.load_tasks()
+        else:
+            selected_task = self.completed_listbox.get(tk.ACTIVE)
+            if selected_task:
+                task_name = selected_task.split(' - ')[0]
+                self.manager.delete_task(self.username, task_name, completed=True)
+                self.load_tasks()
 
     def clear_all_pending_tasks(self):
         if messagebox.askyesno('Confirm', 'Are you sure you want to clear all pending tasks?'):

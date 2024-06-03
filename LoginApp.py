@@ -12,6 +12,7 @@ class LoginApp:
         self.user_manager = UserManager()
         self.task_manager = TaskManager()
         self.create_login_ui()
+        self.root.geometry('200x150')
 
     def create_login_ui(self):
         self.root.title('Task Manager - Login')

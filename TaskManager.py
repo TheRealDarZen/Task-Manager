@@ -48,6 +48,21 @@ class TaskManager:
         with shelve.open(self.db_name) as db:
             return db.get(f"{username}_completed", [])
 
+    def delete_task(self, username, task_name, completed=False):
+        with shelve.open(self.db_name, writeback=True) as db:
+            if completed:
+                tasks = db.get(f"{username}_completed", [])
+            else:
+                tasks = db.get(username, [])
+            for task in tasks:
+                if task['name'] == task_name:
+                    tasks.remove(task)
+                    break
+            if completed:
+                db[f"{username}_completed"] = tasks
+            else:
+                db[username] = tasks
+
     def delete_all_tasks(self, username):
         with shelve.open(self.db_name, writeback=True) as db:
             db[username] = []
