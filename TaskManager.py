@@ -33,7 +33,7 @@ class TaskManager:
             completed_tasks = db.get(f"{username}_completed", [])
             for task in tasks:
                 if task['name'] == task_name:
-                    if task['status'] == 'Late':
+                    if task['status'] == 'Pending, Late':
                         task['status'] = 'Completed, Late'
                     else:
                         task['status'] = 'Completed'

@@ -44,6 +44,14 @@ class TaskApp:
         self.add_button = tk.Button(task_input_frame, text='Add Task', command=self.add_task, padx=10)
         self.add_button.grid(row=4, column=1, columnspan=2, pady=10)
 
+        # Sorting pending tasks (without frame)
+        self.sort_label = tk.Label(self.root, text='Sort By:')
+        self.sort_label.pack()
+        self.sort_combobox = ttk.Combobox(self.root, values=['Date', 'Name', 'Status', 'Priority'])
+        self.sort_combobox.current(0)
+        self.sort_combobox.bind("<<ComboboxSelected>>", self.sort_tasks)
+        self.sort_combobox.pack()
+
         # Frame for pending tasks
         pending_tasks_frame = tk.Frame(self.root)
         pending_tasks_frame.pack(padx=10, pady=10, fill='x')
@@ -101,14 +109,29 @@ class TaskApp:
     def load_tasks(self):
         self.task_listbox.delete(0, tk.END)
         tasks = self.manager.get_tasks(self.username)
+        sort_by = self.sort_combobox.get()
+
+        if sort_by == 'Name':
+            tasks.sort(key=lambda x: x['name'])
+        elif sort_by == 'Status':
+            tasks.sort(key=lambda x: x['status'])
+        elif sort_by == 'Priority':
+            priority_order = {'Highest': 1, 'High': 2, 'Moderate': 3, 'Low': 4}
+            tasks.sort(key=lambda x: priority_order[x['priority']])
+        else:
+            tasks.sort(key=lambda x: (x['due_date'], x['due_time']))
+
         for task in tasks:
-            self.task_listbox.insert(tk.END,
-                                     f"{task['name']} - {task['due_date']} {task['due_time']} - {task['priority']} - {task['status']}")
+            self.task_listbox.insert(tk.END, f"{task['name']} - {task['due_date']} {task['due_time']} - {task['priority']} - {task['status']}")
 
         self.completed_listbox.delete(0, tk.END)
         completed_tasks = self.manager.get_completed_tasks_with_time(self.username)
         for task in completed_tasks:
-            self.completed_listbox.insert(tk.END, f"{task['name']} - Due to {task['due_date']} {task['due_time']} - {task['priority']} - Completed at {task['completed_at']}")
+            self.completed_listbox.insert(tk.END, f"{task['name']} - Due to {task['due_date']} {task['due_time']} - Completed at {task['completed_at']} "
+                                                  f"{('(Late)' if task['status'] == 'Completed, Late' else '')} - {task['priority']}")
+
+    def sort_tasks(self, event=None):
+        self.load_tasks()
 
     def complete_task(self):
         selected_task = self.task_listbox.get(tk.ACTIVE)
