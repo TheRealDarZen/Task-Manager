@@ -27,7 +27,7 @@ class TaskManager:
             completed_tasks = db.get(f"{username}_completed", [])
             return completed_tasks
 
-    def complete_task(self, username, task_name, task_due_date, task_due_time):
+    def complete_task(self, username, task_name):
         with shelve.open(self.db_name, writeback=True) as db:
             tasks = db.get(username, [])
             completed_tasks = db.get(f"{username}_completed", [])
@@ -37,7 +37,6 @@ class TaskManager:
                         task['status'] = 'Completed, Late'
                     else:
                         task['status'] = 'Completed'
-                    task['due'] = datetime.strptime(task_due_date + ' ' + task_due_time, '%Y-%m-%d %H:%M')
                     task['completed_at'] = datetime.now().strftime('%Y-%m-%d %H:%M')
                     completed_tasks.append(task)
                     tasks.remove(task)

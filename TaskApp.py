@@ -1,6 +1,7 @@
 import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox
+import tkinter.ttk as ttk
 
 from TaskManager import TaskManager
 
@@ -30,7 +31,13 @@ class TaskApp:
         self.due_time_entry = tk.Entry(self.root, width=50)
         self.due_time_entry.pack()
 
-        self.add_button = tk.Button(self.root, text='Add Task', command=self.add_task)
+        self.priority_label = tk.Label(self.root, text='Priority:')
+        self.priority_label.pack()
+        self.priority_combobox = ttk.Combobox(self.root, values=['Highest', 'High', 'Moderate', 'Low'])
+        self.priority_combobox.current(2)
+        self.priority_combobox.pack()
+
+        self.add_button = tk.Button(self.root, text='Add Task', command=self.add_task, padx=10)
         self.add_button.pack()
 
         self.pending_tasks_label = tk.Label(self.root, text='Pending Tasks:')
@@ -41,17 +48,18 @@ class TaskApp:
         self.complete_button = tk.Button(self.root, text='Mark as Completed', command=self.complete_task)
         self.complete_button.pack()
 
-        self.delete_all_button = tk.Button(self.root, text='Clear All Pending Tasks', command=self.clear_all_pending_tasks)
-        self.delete_all_button.pack()
-
         self.completed_tasks_label = tk.Label(self.root, text='Completed Tasks:')
         self.completed_tasks_label.pack()
         self.completed_listbox = tk.Listbox(self.root, width=100)
         self.completed_listbox.pack()
 
-        self.delete_all_completed_button = tk.Button(self.root, text='Clear All Completed Tasks',
-                                                     command=self.clear_all_completed_tasks)
-        self.delete_all_completed_button.pack()
+        self.clear_all_pending_button = tk.Button(self.root, text='Clear All Pending Tasks',
+                                                  command=self.clear_all_pending_tasks)
+        self.clear_all_pending_button.pack()
+
+        self.clear_all_completed_button = tk.Button(self.root, text='Clear All Completed Tasks',
+                                                    command=self.clear_all_completed_tasks)
+        self.clear_all_completed_button.pack()
 
         self.load_tasks()
 
@@ -59,15 +67,18 @@ class TaskApp:
         task_name = self.task_entry.get()
         due_date = self.due_date_entry.get()
         due_time = self.due_time_entry.get()
+        priority = self.priority_combobox.get()
         try:
             formatted_due_date = datetime.strptime(due_date, '%d-%m-%Y').strftime('%Y-%m-%d')
             datetime.strptime(formatted_due_date + ' ' + due_time, '%Y-%m-%d %H:%M')
             if task_name and due_date and due_time:
-                task = {'name': task_name, 'due_date': formatted_due_date, 'due_time': due_time, 'status': 'Pending'}
+                task = {'name': task_name, 'due_date': formatted_due_date, 'due_time': due_time, 'priority': priority,
+                        'status': 'Pending'}
                 self.manager.add_task(self.username, task)
                 self.task_entry.delete(0, tk.END)
                 self.due_date_entry.delete(0, tk.END)
                 self.due_time_entry.delete(0, tk.END)
+                self.priority_combobox.current(2)
                 self.load_tasks()
             else:
                 messagebox.showerror('Error', 'Please enter task name, due date and due time')
@@ -80,21 +91,19 @@ class TaskApp:
         tasks = self.manager.get_tasks(self.username)
         for task in tasks:
             self.task_listbox.insert(tk.END,
-                                     f"{task['name']} - {task['due_date']} - {task['due_time']} - {task['status']}")
+                                     f"{task['name']} - {task['due_date']} {task['due_time']} - {task['priority']} - {task['status']}")
 
         self.completed_listbox.delete(0, tk.END)
         completed_tasks = self.manager.get_completed_tasks_with_time(self.username)
         for task in completed_tasks:
-            self.completed_listbox.insert(tk.END, f"{task['name']} - Due to {task['due']} - Completed at {task['completed_at']}")
+            self.completed_listbox.insert(tk.END, f"{task['name']} - Due to {task['due_date']} {task['due_time']} - {task['priority']} - Completed at {task['completed_at']}")
 
     def complete_task(self):
         selected_task = self.task_listbox.get(tk.ACTIVE)
         if selected_task:
             task_split = selected_task.split(' - ')
             task_name = task_split[0]
-            task_due_date = task_split[1]
-            task_due_time = task_split[2]
-            self.manager.complete_task(self.username, task_name, task_due_date, task_due_time)
+            self.manager.complete_task(self.username, task_name)
             self.load_tasks()
 
     def show_completed_tasks(self):
