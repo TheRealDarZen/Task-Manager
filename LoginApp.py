@@ -18,12 +18,12 @@ class LoginApp:
 
         self.username_label = tk.Label(self.root, text='Username')
         self.username_label.pack()
-        self.username_entry = tk.Entry(self.root)
+        self.username_entry = tk.Entry(self.root, width=30)
         self.username_entry.pack()
 
         self.password_label = tk.Label(self.root, text='Password')
         self.password_label.pack()
-        self.password_entry = tk.Entry(self.root, show='*')
+        self.password_entry = tk.Entry(self.root, show='*', width=30)
         self.password_entry.pack()
 
         self.login_button = tk.Button(self.root, text='Login', command=self.login)
@@ -51,5 +51,14 @@ class LoginApp:
     def open_task_manager(self, username):
         self.root.withdraw()
         self.task_manager_app = tk.Toplevel(self.root)
-        self.task_manager_app.protocol("WM_DELETE_WINDOW", self.root.quit)
+        self.task_manager_app.protocol("WM_DELETE_WINDOW", self.on_task_manager_close)
         TaskApp(self.task_manager_app, username)
+
+    def on_task_manager_close(self):
+        self.task_manager_app.destroy()
+        self.root.deiconify()
+        self.clear()
+
+    def clear(self):
+        self.username_entry.delete(0, tk.END)
+        self.password_entry.delete(0, tk.END)

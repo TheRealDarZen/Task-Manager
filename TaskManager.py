@@ -17,12 +17,17 @@ class TaskManager:
             tasks = db.get(username, [])
             for task in tasks:
                 due_datetime = datetime.strptime(task['due_date'] + ' ' + task['due_time'], '%Y-%m-%d %H:%M')
-                if task['status'] != 'Completed' and due_datetime < datetime.now():
-                    task['status'] = 'Late'
+                if task['status'] not in ['Completed', 'Completed, Late'] and due_datetime < datetime.now():
+                    task['status'] = 'Pending, Late'
             db[username] = tasks
             return tasks
 
-    def complete_task(self, username, task_name):
+    def get_completed_tasks_with_time(self, username):
+        with shelve.open(self.db_name) as db:
+            completed_tasks = db.get(f"{username}_completed", [])
+            return completed_tasks
+
+    def complete_task(self, username, task_name, task_due_date, task_due_time):
         with shelve.open(self.db_name, writeback=True) as db:
             tasks = db.get(username, [])
             completed_tasks = db.get(f"{username}_completed", [])
@@ -32,6 +37,8 @@ class TaskManager:
                         task['status'] = 'Completed, Late'
                     else:
                         task['status'] = 'Completed'
+                    task['due'] = datetime.strptime(task_due_date + ' ' + task_due_time, '%Y-%m-%d %H:%M')
+                    task['completed_at'] = datetime.now().strftime('%Y-%m-%d %H:%M')
                     completed_tasks.append(task)
                     tasks.remove(task)
                     break
