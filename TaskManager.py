@@ -22,16 +22,6 @@ class TaskManager:
             db[username] = tasks
             return tasks
 
-    def update_task(self, username, old_task_name, new_task):
-        with shelve.open(self.db_name, writeback=True) as db:
-            tasks = db.get(username, [])
-            for task in tasks:
-                if task['name'] == old_task_name:
-                    tasks.remove(task)
-                    tasks.append(new_task)
-                    break
-            db[username] = tasks
-
     def get_completed_tasks_with_time(self, username):
         with shelve.open(self.db_name) as db:
             completed_tasks = db.get(f"{username}_completed", [])
