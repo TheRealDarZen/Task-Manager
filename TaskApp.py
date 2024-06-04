@@ -4,6 +4,7 @@ from tkinter import messagebox
 import tkinter.ttk as ttk
 
 from TaskManager import TaskManager
+from EditWindow import EditWindow
 
 
 class TaskApp:
@@ -61,8 +62,15 @@ class TaskApp:
         self.task_listbox = tk.Listbox(pending_tasks_frame, width=70)
         self.task_listbox.pack(pady=5)
 
-        self.complete_button = tk.Button(pending_tasks_frame, text='Mark as Completed', command=self.complete_task)
+        self.complete_button = tk.Button(pending_tasks_frame, text='Mark as Completed', command=self.complete_task, padx=10)
         self.complete_button.pack(pady=5)
+
+        self.edit_task_button = tk.Button(pending_tasks_frame, text='Edit Task', command=self.edit_task, padx=10)
+        self.edit_task_button.pack(pady=5)
+
+        self.delete_task_button = tk.Button(pending_tasks_frame, text='Delete Task', command=self.delete_task,
+                                            padx=10)
+        self.delete_task_button.pack(pady=5)
 
         # Frame for completed tasks
         completed_tasks_frame = tk.Frame(self.root)
@@ -73,23 +81,19 @@ class TaskApp:
         self.completed_listbox = tk.Listbox(completed_tasks_frame, width=70)
         self.completed_listbox.pack(pady=5)
 
-        # Frame for deleting tasks
-        delete_tasks_buttons_frame = tk.Frame(self.root)
-        delete_tasks_buttons_frame.pack(padx=10, pady=10, fill='x')
+        # Frame for clearing all tasks
+        clear_tasks_buttons_frame = tk.Frame(self.root)
+        clear_tasks_buttons_frame.pack(padx=10, pady=10, fill='x')
 
-        self.delete_task_button = tk.Button(delete_tasks_buttons_frame, text='Delete Task', command=self.delete_task, padx=10)
-        self.delete_task_button.grid(row=0, column=1, columnspan=2, pady=5)
+        self.clear_all_pending_button = tk.Button(clear_tasks_buttons_frame, text='Clear All Pending Tasks',
+                                                  command=self.clear_all_pending_tasks, padx=20)
+        self.clear_all_pending_button.grid(row=0, column=1, columnspan=2, pady=5)
 
-        self.clear_all_pending_button = tk.Button(delete_tasks_buttons_frame, text='Clear All Pending Tasks',
-                                                  command=self.clear_all_pending_tasks, padx=10)
-        self.clear_all_pending_button.grid(row=0, column=3, columnspan=2, pady=5)
-
-        self.clear_all_completed_button = tk.Button(delete_tasks_buttons_frame, text='Clear All Completed Tasks',
-                                                    command=self.clear_all_completed_tasks, padx=10)
-        self.clear_all_completed_button.grid(row=0, column=5, columnspan=2, pady=5)
+        self.clear_all_completed_button = tk.Button(clear_tasks_buttons_frame, text='Clear All Completed Tasks',
+                                                    command=self.clear_all_completed_tasks, padx=20)
+        self.clear_all_completed_button.grid(row=0, column=3, columnspan=2, pady=5)
 
         self.load_tasks()
-
 
     def add_task(self):
         task_name = self.task_entry.get()
@@ -113,6 +117,16 @@ class TaskApp:
         except ValueError:
             messagebox.showerror('Error',
                                  'Invalid date or time format. Please use DD-MM-YYYY for date and HH:MM for time')
+
+    def edit_task(self):
+        selected_task = self.task_listbox.get(tk.ACTIVE)
+        if selected_task:
+            tasks = self.manager.get_tasks(self.username)
+            for task in tasks:
+                if task['name'] == selected_task.split(' - ')[0]:
+                    self.edit_window = tk.Toplevel(self.root)
+                    EditWindow(self.edit_window, task, self.username, self.load_tasks)
+                    break
 
     def load_tasks(self):
         self.task_listbox.delete(0, tk.END)
