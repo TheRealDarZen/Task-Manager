@@ -12,7 +12,7 @@ class LoginApp:
         self.user_manager = UserManager()
         self.task_manager = TaskManager()
         self.create_login_ui()
-        self.root.geometry('200x130')
+        self.root.geometry('300x130')
 
     def create_login_ui(self):
         self.root.title('Task Manager - Login')
@@ -27,15 +27,18 @@ class LoginApp:
         self.password_entry = tk.Entry(self.root, show='*', width=30)
         self.password_entry.pack()
 
-        # Frame for login and register buttons
+        # Frame for login, register and delete buttons
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(padx=10, pady=10, fill='x')
 
-        self.login_button = tk.Button(self.button_frame, text='Login', command=self.login, padx=25)
+        self.login_button = tk.Button(self.button_frame, text='Login', command=self.login, padx=15)
         self.login_button.grid(row=0, column=0, columnspan=2, pady=5)
 
-        self.register_button = tk.Button(self.button_frame, text='Register', command=self.register, padx=25)
+        self.register_button = tk.Button(self.button_frame, text='Register', command=self.register, padx=15)
         self.register_button.grid(row=0, column=2, columnspan=2, pady=5)
+
+        self.delete_button = tk.Button(self.button_frame, text="Delete Account", command=self.delete_account, padx=15)
+        self.delete_button.grid(row=0, column=4, columnspan=2, pady=5)
 
     def login(self):
         username = self.username_entry.get()
@@ -52,6 +55,16 @@ class LoginApp:
             messagebox.showinfo('Success', 'User registered successfully')
         else:
             messagebox.showerror('Error', 'Username already exists')
+
+    def delete_account(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        if self.user_manager.validate_user(username, password):
+            if messagebox.askyesno("Delete Account", "Are you sure you want to delete this account?"):
+                self.user_manager.delete_user(username)
+                messagebox.showinfo("Success", "Account deleted successfully")
+        else:
+            messagebox.showerror("Error", "Invalid username or password")
 
     def open_task_manager(self, username):
         self.root.withdraw()
