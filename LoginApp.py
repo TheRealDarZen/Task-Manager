@@ -12,7 +12,7 @@ class LoginApp:
         self.user_manager = UserManager()
         self.task_manager = TaskManager()
         self.create_login_ui()
-        self.root.geometry('200x150')
+        self.root.geometry('200x130')
 
     def create_login_ui(self):
         self.root.title('Task Manager - Login')
@@ -27,11 +27,15 @@ class LoginApp:
         self.password_entry = tk.Entry(self.root, show='*', width=30)
         self.password_entry.pack()
 
-        self.login_button = tk.Button(self.root, text='Login', command=self.login)
-        self.login_button.pack()
+        # Frame for login and register buttons
+        self.button_frame = tk.Frame(self.root)
+        self.button_frame.pack(padx=10, pady=10, fill='x')
 
-        self.register_button = tk.Button(self.root, text='Register', command=self.register)
-        self.register_button.pack()
+        self.login_button = tk.Button(self.button_frame, text='Login', command=self.login, padx=25)
+        self.login_button.grid(row=0, column=0, columnspan=2, pady=5)
+
+        self.register_button = tk.Button(self.button_frame, text='Register', command=self.register, padx=25)
+        self.register_button.grid(row=0, column=2, columnspan=2, pady=5)
 
     def login(self):
         username = self.username_entry.get()
