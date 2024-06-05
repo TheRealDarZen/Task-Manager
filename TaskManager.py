@@ -1,5 +1,7 @@
 import shelve
-from datetime import datetime
+from datetime import datetime, timedelta
+from plyer import notification
+import time
 
 
 class TaskManager:
@@ -81,3 +83,20 @@ class TaskManager:
     def delete_all_completed_tasks(self, username):
         with shelve.open(self.db_name, writeback=True) as db:
             db[f"{username}_completed"] = []
+
+    def check_due_tasks(self, username):
+        while True:
+            with shelve.open(self.db_name) as db:
+                tasks = db.get(username, [])
+                now = datetime.now()
+                for task in tasks:
+                    due_date = datetime.strptime(task['due_date'] + ' ' + task['due_time'], '%Y-%m-%d %H:%M')
+                    if task['status'] == 'Pending' and now >= due_date - timedelta(minutes=180):
+                        notification.notify(
+                            #name="Task Manager",
+                            title=f"Task Due Soon: {task['name']}",
+                            message=f"{username}, you have a task: {task['name']} due at {task['due_time']} on {task['due_date']}."
+                                    f" The priority of this task is {task['priority']}.",
+                            timeout=30
+                        )
+            time.sleep(900) # 15 minutes

@@ -2,6 +2,7 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox
 import tkinter.ttk as ttk
+import threading
 
 from TaskManager import TaskManager
 from EditWindow import EditWindow
@@ -13,6 +14,10 @@ class TaskApp:
         self.username = username
         self.manager = TaskManager()
         self.create_task_ui()
+
+        self.check_due_thread = threading.Thread(target=self.manager.check_due_tasks, args=(self.username,))
+        self.check_due_thread.daemon = True
+        self.check_due_thread.start()
 
     def create_task_ui(self):
         self.root.title(f'Task Manager - {self.username}')
