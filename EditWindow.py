@@ -17,28 +17,31 @@ class EditWindow:
         self.create_edit_window()
 
     def create_edit_window(self):
-        task_input_frame = tk.Frame(self.root)
+        self.root.title(f'Edit task: {self.task['name']}')
+        self.root.config(bg='grey')
+
+        task_input_frame = tk.Frame(self.root, bg='grey')
         task_input_frame.pack(padx=10, pady=10, fill='x')
 
-        self.task_name_label = tk.Label(task_input_frame, text='Task Name:')
+        self.task_name_label = tk.Label(task_input_frame, text='Task Name:', fg='white', bg='grey')
         self.task_name_label.grid(row=0, column=0, sticky='e', padx=5, pady=5)
-        self.task_entry = tk.Entry(task_input_frame, width=50)
+        self.task_entry = tk.Entry(task_input_frame, width=50, fg='white', bg='grey')
         self.task_entry.insert(0, self.task['name'])
         self.task_entry.grid(row=0, column=1, padx=5, pady=5)
 
-        self.due_date_label = tk.Label(task_input_frame, text='Date DD-MM-YYYY:')
+        self.due_date_label = tk.Label(task_input_frame, text='Date DD-MM-YYYY:', fg='white', bg='grey')
         self.due_date_label.grid(row=1, column=0, sticky='e', padx=5, pady=5)
-        self.due_date_entry = tk.Entry(task_input_frame, width=50)
+        self.due_date_entry = tk.Entry(task_input_frame, width=50, fg='white', bg='grey')
         self.due_date_entry.insert(0, f'{self.task['due_date'].split('-')[2]}-{self.task['due_date'].split('-')[1]}-{self.task['due_date'].split('-')[0]}')
         self.due_date_entry.grid(row=1, column=1, padx=5, pady=5)
 
-        self.due_time_label = tk.Label(task_input_frame, text='Time HH:MM:')
+        self.due_time_label = tk.Label(task_input_frame, text='Time HH:MM:', fg='white', bg='grey')
         self.due_time_label.grid(row=2, column=0, sticky='e', padx=5, pady=5)
-        self.due_time_entry = tk.Entry(task_input_frame, width=50)
+        self.due_time_entry = tk.Entry(task_input_frame, width=50, fg='white', bg='grey')
         self.due_time_entry.insert(0, self.task['due_time'])
         self.due_time_entry.grid(row=2, column=1, padx=5, pady=5)
 
-        self.priority_label = tk.Label(task_input_frame, text='Priority:')
+        self.priority_label = tk.Label(task_input_frame, text='Priority:', fg='white', bg='grey')
         self.priority_label.grid(row=3, column=0, sticky='e', padx=5, pady=5)
         self.priority_combobox = ttk.Combobox(task_input_frame, values=['Highest', 'High', 'Moderate', 'Low'],
                                               state='readonly')
@@ -46,7 +49,7 @@ class EditWindow:
         self.priority_combobox.current(priority_order[self.task['priority']] - 1)
         self.priority_combobox.grid(row=3, column=1, padx=5, pady=5)
 
-        self.edit_button = tk.Button(task_input_frame, text='Edit Task', command=self.edit_task, padx=10)
+        self.edit_button = tk.Button(task_input_frame, text='Edit Task', command=self.edit_task, padx=10, fg='white', bg='grey')
         self.edit_button.grid(row=4, column=1, columnspan=2, pady=10)
 
     def edit_task(self):

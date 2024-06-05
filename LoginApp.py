@@ -16,28 +16,29 @@ class LoginApp:
 
     def create_login_ui(self):
         self.root.title('Task Manager - Login')
+        self.root.config(bg='grey')
 
-        self.username_label = tk.Label(self.root, text='Username')
+        self.username_label = tk.Label(self.root, text='Username', fg='white', bg='grey')
         self.username_label.pack()
-        self.username_entry = tk.Entry(self.root, width=30)
+        self.username_entry = tk.Entry(self.root, width=30, fg='white', bg='grey')
         self.username_entry.pack()
 
-        self.password_label = tk.Label(self.root, text='Password')
+        self.password_label = tk.Label(self.root, text='Password', fg='white', bg='grey')
         self.password_label.pack()
-        self.password_entry = tk.Entry(self.root, show='*', width=30)
+        self.password_entry = tk.Entry(self.root, show='*', width=30, fg='white', bg='grey')
         self.password_entry.pack()
 
         # Frame for login, register and delete buttons
-        self.button_frame = tk.Frame(self.root)
+        self.button_frame = tk.Frame(self.root, bg='grey')
         self.button_frame.pack(padx=10, pady=10, fill='x')
 
-        self.login_button = tk.Button(self.button_frame, text='Login', command=self.login, padx=15)
+        self.login_button = tk.Button(self.button_frame, text='Login', command=self.login, padx=15, fg='white', bg='grey')
         self.login_button.grid(row=0, column=0, columnspan=2, pady=5)
 
-        self.register_button = tk.Button(self.button_frame, text='Register', command=self.register, padx=15)
+        self.register_button = tk.Button(self.button_frame, text='Register', command=self.register, padx=15, fg='white', bg='grey')
         self.register_button.grid(row=0, column=2, columnspan=2, pady=5)
 
-        self.delete_button = tk.Button(self.button_frame, text="Delete Account", command=self.delete_account, padx=15)
+        self.delete_button = tk.Button(self.button_frame, text="Delete Account", command=self.delete_account, padx=15, fg='white', bg='grey')
         self.delete_button.grid(row=0, column=4, columnspan=2, pady=5)
 
     def login(self):
