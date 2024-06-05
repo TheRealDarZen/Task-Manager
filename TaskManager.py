@@ -100,3 +100,13 @@ class TaskManager:
                             timeout=30
                         )
             time.sleep(900) # 15 minutes
+
+    def update_status(self, func):
+        last_time = datetime.now().strftime('%H:%M')
+        while True:
+            current_time = datetime.now().strftime('%H:%M')
+            if current_time != last_time:
+                if func:
+                    func()
+                last_time = current_time
+            time.sleep(1)

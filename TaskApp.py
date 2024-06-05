@@ -19,6 +19,10 @@ class TaskApp:
         self.check_due_thread.daemon = True
         self.check_due_thread.start()
 
+        self.update_tasks_status = threading.Thread(target=self.manager.update_status, args=(self.load_tasks,))
+        self.update_tasks_status.daemon = True
+        self.update_tasks_status.start()
+
     def create_task_ui(self):
         self.root.title(f'Task Manager - {self.username}')
 
