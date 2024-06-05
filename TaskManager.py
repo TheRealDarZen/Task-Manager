@@ -48,6 +48,17 @@ class TaskManager:
         with shelve.open(self.db_name) as db:
             return db.get(f"{username}_completed", [])
 
+    def get_stats(self, username):
+        pending_tasks = self.get_tasks(username)
+        completed_tasks = self.get_completed_tasks(username)
+        completed_tasks_count = len(completed_tasks)
+        completed_on_time_tasks_count = len([task for task in completed_tasks if task['status'] == 'Completed'])
+        pending_tasks_count = len(pending_tasks)
+        completed_late_tasks_count = len([task for task in completed_tasks if task['status'] == 'Completed, Late'])
+        pending_late_tasks_count = len([task for task in pending_tasks if task['status'] == 'Pending, Late'])
+        total_tasks_count = len(pending_tasks) + len(completed_tasks)
+        return total_tasks_count, completed_tasks_count, completed_on_time_tasks_count, pending_tasks_count, completed_late_tasks_count, pending_late_tasks_count
+
     def delete_task(self, username, task_name, completed=False):
         with shelve.open(self.db_name, writeback=True) as db:
             if completed:

@@ -45,35 +45,32 @@ class TaskApp:
         self.add_button = tk.Button(task_input_frame, text='Add Task', command=self.add_task, padx=10)
         self.add_button.grid(row=4, column=1, columnspan=2, pady=10)
 
-        # Sorting pending tasks (without frame)
-        self.sort_label = tk.Label(self.root, text='Sort By:')
-        self.sort_label.pack()
-        self.sort_combobox = ttk.Combobox(self.root, values=['Date', 'Name', 'Status', 'Priority'], state='readonly')
-        self.sort_combobox.current(0)
-        self.sort_combobox.bind("<<ComboboxSelected>>", self.sort_tasks)
-        self.sort_combobox.pack()
-
-        # Label and Frame for filtering
-        self.filter_label = tk.Label(self.root, text='Filters')
-        self.filter_label.pack(pady=10)
-
+        # Frame for filtering and sorting
         self.filter_frame = tk.Frame(self.root)
         self.filter_frame.pack(padx=10, fill='x')
 
-        self.filter_by_status_label = tk.Label(self.filter_frame, text='By Status:')
+        self.filter_by_status_label = tk.Label(self.filter_frame, text='Filter by Status:')
         self.filter_by_status_label.grid(row=0, column=0, padx=10, pady=10)
         self.filter_by_status_combobox = ttk.Combobox(self.filter_frame, values=['All', 'Due', 'Late'], state='readonly', width=30)
         self.filter_by_status_combobox.current(0)
         self.filter_by_status_combobox.bind("<<ComboboxSelected>>", self.filter_tasks_by_status)
         self.filter_by_status_combobox.grid(row=0, column=1, padx=10, pady=10)
 
-        self.filter_by_priority_label = tk.Label(self.filter_frame, text='By Priority:')
+        self.filter_by_priority_label = tk.Label(self.filter_frame, text='Filter by Priority:')
         self.filter_by_priority_label.grid(row=1, column=0, padx=10, pady=10)
         self.filter_by_priority_combobox = ttk.Combobox(self.filter_frame,
                                                         values=['All', 'Highest', 'High/Highest', 'Moderate/High/Highest'], state='readonly', width=30)
         self.filter_by_priority_combobox.current(0)
         self.filter_by_priority_combobox.bind("<<ComboboxSelected>>", self.filter_tasks_by_priority)
         self.filter_by_priority_combobox.grid(row=1, column=1, padx=10, pady=10)
+
+        self.sort_label = tk.Label(self.filter_frame, text='Sort By:')
+        self.sort_label.grid(row=2, column=0, padx=10, pady=10)
+        self.sort_combobox = ttk.Combobox(self.filter_frame, values=['Date', 'Name', 'Status', 'Priority'],
+                                          state='readonly', width=30)
+        self.sort_combobox.current(0)
+        self.sort_combobox.bind("<<ComboboxSelected>>", self.sort_tasks)
+        self.sort_combobox.grid(row=2, column=1, padx=10, pady=10)
 
         # Frame for pending tasks
         pending_tasks_frame = tk.Frame(self.root)
@@ -103,19 +100,31 @@ class TaskApp:
         self.completed_listbox = tk.Listbox(completed_tasks_frame, width=100)
         self.completed_listbox.pack(pady=5)
 
-        # Frame for clearing all tasks
+        # Frame for clearing all tasks and stats
         clear_tasks_buttons_frame = tk.Frame(self.root)
         clear_tasks_buttons_frame.pack(padx=10, pady=10, fill='x')
 
         self.clear_all_pending_button = tk.Button(clear_tasks_buttons_frame, text='Clear All Pending Tasks',
                                                   command=self.clear_all_pending_tasks, padx=20)
-        self.clear_all_pending_button.grid(row=0, column=1, columnspan=2, pady=5)
+        self.clear_all_pending_button.grid(row=0, column=0, pady=5, sticky='w')
 
         self.clear_all_completed_button = tk.Button(clear_tasks_buttons_frame, text='Clear All Completed Tasks',
                                                     command=self.clear_all_completed_tasks, padx=20)
-        self.clear_all_completed_button.grid(row=0, column=3, columnspan=2, pady=5)
+        self.clear_all_completed_button.grid(row=0, column=1, pady=5, sticky='w')
+
+        # Adding empty columns to create space between left and right buttons
+        clear_tasks_buttons_frame.grid_columnconfigure(2, weight=1)
+
+        self.stats_button = tk.Button(clear_tasks_buttons_frame, text='Show Stats', command=self.show_stats, padx=10)
+        self.stats_button.grid(row=0, column=3, pady=5, sticky='e')
+
+        # Ensure that columns are stretched to fill the space
+        clear_tasks_buttons_frame.grid_columnconfigure(0, weight=0)
+        clear_tasks_buttons_frame.grid_columnconfigure(1, weight=0)
+        clear_tasks_buttons_frame.grid_columnconfigure(3, weight=0)
 
         self.load_tasks()
+
 
     def add_task(self):
         task_name = self.task_entry.get()
@@ -235,3 +244,19 @@ class TaskApp:
         if messagebox.askyesno('Confirm', 'Are you sure you want to clear all completed tasks?'):
             self.manager.delete_all_completed_tasks(self.username)
             self.show_completed_tasks()
+
+    def show_stats(self):
+        stats_window = tk.Toplevel(self.root)
+        stats_window.title('Task Statistics')
+        stats_window.geometry('300x150')
+
+        total_tasks, completed_tasks, completed_on_time_tasks, pending_tasks, completed_late_tasks, pending_late_tasks = (
+            self.manager.get_stats(self.username))
+
+        tk.Label(stats_window, text=f'Total Tasks: {total_tasks}').pack()
+        tk.Label(stats_window, text=f'Pending Tasks: {pending_tasks}').pack()
+        tk.Label(stats_window, text=f'Pending late Tasks: {pending_late_tasks}').pack()
+        tk.Label(stats_window, text=f'Completed Tasks: {completed_tasks}').pack()
+        tk.Label(stats_window, text=f'Completed on time Tasks: {completed_on_time_tasks} '
+                                    f'({round((completed_on_time_tasks*100/completed_tasks), 1) if completed_tasks > 0 else 0.0}%)').pack()
+        tk.Label(stats_window, text=f'Completed late Tasks: {completed_late_tasks}').pack()
