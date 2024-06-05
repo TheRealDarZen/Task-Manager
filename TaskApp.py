@@ -53,13 +53,35 @@ class TaskApp:
         self.sort_combobox.bind("<<ComboboxSelected>>", self.sort_tasks)
         self.sort_combobox.pack()
 
+        # Label and Frame for filtering
+        self.filter_label = tk.Label(self.root, text='Filters')
+        self.filter_label.pack(pady=10)
+
+        self.filter_frame = tk.Frame(self.root)
+        self.filter_frame.pack(padx=10, fill='x')
+
+        self.filter_by_status_label = tk.Label(self.filter_frame, text='By Status:')
+        self.filter_by_status_label.grid(row=0, column=0, padx=10, pady=10)
+        self.filter_by_status_combobox = ttk.Combobox(self.filter_frame, values=['All', 'Due', 'Late'], state='readonly', width=30)
+        self.filter_by_status_combobox.current(0)
+        self.filter_by_status_combobox.bind("<<ComboboxSelected>>", self.filter_tasks_by_status)
+        self.filter_by_status_combobox.grid(row=0, column=1, padx=10, pady=10)
+
+        self.filter_by_priority_label = tk.Label(self.filter_frame, text='By Priority:')
+        self.filter_by_priority_label.grid(row=1, column=0, padx=10, pady=10)
+        self.filter_by_priority_combobox = ttk.Combobox(self.filter_frame,
+                                                        values=['All', 'Highest', 'High/Highest', 'Moderate/High/Highest'], state='readonly', width=30)
+        self.filter_by_priority_combobox.current(0)
+        self.filter_by_priority_combobox.bind("<<ComboboxSelected>>", self.filter_tasks_by_priority)
+        self.filter_by_priority_combobox.grid(row=1, column=1, padx=10, pady=10)
+
         # Frame for pending tasks
         pending_tasks_frame = tk.Frame(self.root)
         pending_tasks_frame.pack(padx=10, pady=10, fill='x')
 
         self.pending_tasks_label = tk.Label(pending_tasks_frame, text='Pending Tasks:')
         self.pending_tasks_label.pack()
-        self.task_listbox = tk.Listbox(pending_tasks_frame, width=70)
+        self.task_listbox = tk.Listbox(pending_tasks_frame, width=100)
         self.task_listbox.pack(pady=5)
 
         self.complete_button = tk.Button(pending_tasks_frame, text='Mark as Completed', command=self.complete_task, padx=10)
@@ -78,7 +100,7 @@ class TaskApp:
 
         self.completed_tasks_label = tk.Label(completed_tasks_frame, text='Completed Tasks:')
         self.completed_tasks_label.pack()
-        self.completed_listbox = tk.Listbox(completed_tasks_frame, width=70)
+        self.completed_listbox = tk.Listbox(completed_tasks_frame, width=100)
         self.completed_listbox.pack(pady=5)
 
         # Frame for clearing all tasks
@@ -131,8 +153,24 @@ class TaskApp:
     def load_tasks(self):
         self.task_listbox.delete(0, tk.END)
         tasks = self.manager.get_tasks(self.username)
+        filter_by_status = self.filter_by_status_combobox.get()
+        filter_by_priority = self.filter_by_priority_combobox.get()
         sort_by = self.sort_combobox.get()
 
+        # Filtering
+        if filter_by_status == 'Due':
+            tasks = [task for task in tasks if task['status'] == 'Pending']
+        elif filter_by_status == 'Late':
+            tasks = [task for task in tasks if task['status'] == 'Pending, Late']
+
+        if filter_by_priority == 'Highest':
+            tasks = [task for task in tasks if task['priority'] == 'Highest']
+        elif filter_by_priority == 'High/Highest':
+            tasks = [task for task in tasks if task['priority'] == 'Highest' or task['priority'] == 'High']
+        elif filter_by_priority == 'Moderate/High/Highest':
+            tasks = [task for task in tasks if task['priority'] == 'Highest' or task['priority'] == 'High' or task['priority'] == 'Moderate']
+
+        # Sorting
         if sort_by == 'Name':
             tasks.sort(key=lambda x: x['name'])
         elif sort_by == 'Status':
@@ -151,6 +189,12 @@ class TaskApp:
         for task in completed_tasks:
             self.completed_listbox.insert(tk.END, f"{task['name']} - Due to {task['due_date']} {task['due_time']} - Completed at {task['completed_at']} "
                                                   f"{('(Late)' if task['status'] == 'Completed, Late' else '')} - {task['priority']}")
+
+    def filter_tasks_by_status(self, event=None):
+        self.load_tasks()
+
+    def filter_tasks_by_priority(self, event=None):
+        self.load_tasks()
 
     def sort_tasks(self, event=None):
         self.load_tasks()
