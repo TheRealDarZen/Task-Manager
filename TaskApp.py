@@ -1,5 +1,5 @@
 import tkinter as tk
-from datetime import datetime
+from datetime import datetime, timedelta
 from tkinter import messagebox
 import tkinter.ttk as ttk
 import threading
@@ -36,10 +36,19 @@ class TaskApp:
         self.due_date_entry = tk.Entry(task_input_frame, width=50)
         self.due_date_entry.grid(row=1, column=1, padx=5, pady=5)
 
+        self.due_today_button = tk.Button(task_input_frame, text='Due Today', command=self.set_task_due_today)
+        self.due_today_button.grid(row=1, column=2, padx=5, pady=5)
+
+        self.due_tomorrow_button = tk.Button(task_input_frame, text='Due Tomorrow', command=self.set_task_due_tomorrow)
+        self.due_tomorrow_button.grid(row=1, column=3, padx=5, pady=5)
+
         self.due_time_label = tk.Label(task_input_frame, text='Time HH:MM:')
         self.due_time_label.grid(row=2, column=0, sticky='e', padx=5, pady=5)
         self.due_time_entry = tk.Entry(task_input_frame, width=50)
         self.due_time_entry.grid(row=2, column=1, padx=5, pady=5)
+
+        self.due_to_end_of_the_week_button = tk.Button(task_input_frame, text='Due to end of the week', command=self.set_task_due_to_end_of_the_week)
+        self.due_to_end_of_the_week_button.grid(row=2, column=2, columnspan=2, padx=10, pady=5)
 
         self.priority_label = tk.Label(task_input_frame, text='Priority:')
         self.priority_label.grid(row=3, column=0, sticky='e', padx=5, pady=5)
@@ -249,6 +258,24 @@ class TaskApp:
         if messagebox.askyesno('Confirm', 'Are you sure you want to clear all completed tasks?'):
             self.manager.delete_all_completed_tasks(self.username)
             self.show_completed_tasks()
+
+    def set_task_due_today(self):
+        self.due_date_entry.delete(0, tk.END)
+        self.due_time_entry.delete(0, tk.END)
+        self.due_date_entry.insert(0, datetime.today().strftime('%d-%m-%Y'))
+        self.due_time_entry.insert(0, '23:59')
+
+    def set_task_due_tomorrow(self):
+        self.due_date_entry.delete(0, tk.END)
+        self.due_time_entry.delete(0, tk.END)
+        self.due_date_entry.insert(0, (datetime.today() + timedelta(days=1)).strftime('%d-%m-%Y'))
+        self.due_time_entry.insert(0, '23:59')
+
+    def set_task_due_to_end_of_the_week(self):
+        self.due_date_entry.delete(0, tk.END)
+        self.due_time_entry.delete(0, tk.END)
+        self.due_date_entry.insert(0, (datetime.today() + timedelta(days=(6-datetime.today().weekday()))).strftime('%d-%m-%Y'))
+        self.due_time_entry.insert(0, '23:59')
 
     def show_stats(self):
         stats_window = tk.Toplevel(self.root)

@@ -19,7 +19,7 @@ class TaskManager:
             tasks = db.get(username, [])
             for task in tasks:
                 due_datetime = datetime.strptime(task['due_date'] + ' ' + task['due_time'], '%Y-%m-%d %H:%M')
-                if task['status'] not in ['Completed', 'Completed, Late'] and due_datetime < datetime.now():
+                if task['status'] not in ['Completed', 'Completed, Late'] and (due_datetime + timedelta(minutes=1)) < datetime.now():
                     task['status'] = 'Pending, Late'
             db[username] = tasks
             return tasks
