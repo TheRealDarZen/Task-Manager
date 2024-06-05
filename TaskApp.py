@@ -13,13 +13,14 @@ class TaskApp:
         self.root = root
         self.username = username
         self.manager = TaskManager()
+        self.notificationsOn = tk.BooleanVar()
         self.create_task_ui()
 
-        self.check_due_thread = threading.Thread(target=self.manager.check_due_tasks, args=(self.username,))
+        self.check_due_thread = threading.Thread(target=self.manager.check_due_tasks, args=(self.username, self.get_notifications_val,))
         self.check_due_thread.daemon = True
         self.check_due_thread.start()
 
-        self.update_tasks_status = threading.Thread(target=self.manager.update_status, args=(self.load_tasks,))
+        self.update_tasks_status = threading.Thread(target=self.manager.update_status, args=(self.load_tasks, ))
         self.update_tasks_status.daemon = True
         self.update_tasks_status.start()
 
@@ -143,6 +144,10 @@ class TaskApp:
         clear_tasks_buttons_frame.grid_columnconfigure(1, weight=0)
         clear_tasks_buttons_frame.grid_columnconfigure(3, weight=0)
 
+        self.notification_checkbox = tk.Checkbutton(self.root, text="Enable Notifications", variable=self.notificationsOn,
+                                       onvalue=True, offvalue=False)
+        self.notification_checkbox.pack(anchor=tk.SW)
+
         self.load_tasks()
 
 
@@ -264,6 +269,9 @@ class TaskApp:
         if messagebox.askyesno('Confirm', 'Are you sure you want to clear all completed tasks?'):
             self.manager.delete_all_completed_tasks(self.username)
             self.show_completed_tasks()
+
+    def get_notifications_val(self):
+        return self.notificationsOn.get()
 
     def set_task_due_today(self):
         self.due_date_entry.delete(0, tk.END)
