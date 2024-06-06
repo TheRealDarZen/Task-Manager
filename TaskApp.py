@@ -216,7 +216,14 @@ class TaskApp:
             tasks.sort(key=lambda x: (x['due_date'], x['due_time']))
 
         for task in tasks:
-            self.task_listbox.insert(tk.END, f"{task['name']} - {task['due_date']} {task['due_time']} - {task['priority']} - {task['status']}")
+            due_datetime_str = f"{task['due_date']} {task['due_time']}"
+            time_difference = datetime.strptime(due_datetime_str, '%Y-%m-%d %H:%M') - datetime.now()
+            days_remaining = time_difference.days
+            hours_remaining, remainder = divmod(time_difference.seconds, 3600)
+            minutes_remaining = remainder // 60 + 1
+            self.task_listbox.insert(tk.END, f"{task['name']} - {task['due_date']} {task['due_time']} - {task['priority']} - {task['status']}"
+                                             f"{f" | In {days_remaining} Days {hours_remaining} Hours {minutes_remaining} Minutes"
+                                             if task['status'] != 'Pending, Late' else ""} ")
 
         self.completed_listbox.delete(0, tk.END)
         completed_tasks = self.manager.get_completed_tasks_with_time(self.username)
