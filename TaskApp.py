@@ -99,7 +99,7 @@ class TaskApp:
 
         self.pending_tasks_label = tk.Label(pending_tasks_frame, text='Pending Tasks:', fg='white', bg='grey', font=('DejaVu Sans', 12, 'bold'))
         self.pending_tasks_label.pack()
-        self.task_listbox = tk.Listbox(pending_tasks_frame, height=15, width=100, fg='white', bg='grey')
+        self.task_listbox = tk.Listbox(pending_tasks_frame, height=15, width=100, fg='white', bg='grey', font=('DejaVu Sans', 10))
         self.task_listbox.pack(pady=5)
 
         self.complete_button = tk.Button(pending_tasks_frame, text='Mark as Completed', command=self.complete_task, padx=10, fg='white', bg='grey')
@@ -118,7 +118,7 @@ class TaskApp:
 
         self.completed_tasks_label = tk.Label(completed_tasks_frame, text='Completed Tasks:', fg='white', bg='grey', font=('DejaVu Sans', 12, 'bold'))
         self.completed_tasks_label.pack()
-        self.completed_listbox = tk.Listbox(completed_tasks_frame, width=100, fg='white', bg='grey')
+        self.completed_listbox = tk.Listbox(completed_tasks_frame, width=100, fg='white', bg='grey', font=('DejaVu Sans', 10))
         self.completed_listbox.pack(pady=5)
 
         # Frame for clearing all tasks and stats
@@ -213,7 +213,7 @@ class TaskApp:
             priority_order = {'Highest': 1, 'High': 2, 'Moderate': 3, 'Low': 4}
             tasks.sort(key=lambda x: priority_order[x['priority']])
         else:
-            tasks.sort(key=lambda x: (x['due_date'], x['due_time']))
+            tasks.sort(key=lambda x: (x['due_date'], len(x['due_time']), x['due_time']))
 
         for task in tasks:
             due_datetime_str = f"{task['due_date']} {task['due_time']}"
@@ -221,8 +221,11 @@ class TaskApp:
             days_remaining = time_difference.days
             hours_remaining, remainder = divmod(time_difference.seconds, 3600)
             minutes_remaining = remainder // 60 + 1
-            self.task_listbox.insert(tk.END, f"{task['name']} - {task['due_date']} {task['due_time']} - {task['priority']} - {task['status']}"
-                                             f"{f" | In {days_remaining} Days {hours_remaining} Hours {minutes_remaining} Minutes"
+            self.task_listbox.insert(tk.END, f"{task['name']} - {task['due_date']} {task['due_time']}"
+                                             f", {datetime.strptime(task['due_date'], '%Y-%m-%d').strftime('%A')}"
+                                             f" - {task['priority']} - {task['status']}"
+                                             f"{f" | {f'{days_remaining}d' if days_remaining > 0 else ''}"
+                                                f" {hours_remaining}h {minutes_remaining}m left"
                                              if task['status'] != 'Pending, Late' else ""} ")
 
         self.completed_listbox.delete(0, tk.END)

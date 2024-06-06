@@ -91,7 +91,7 @@ class TaskManager:
                 now = datetime.now()
                 for task in tasks:
                     due_date = datetime.strptime(task['due_date'] + ' ' + task['due_time'], '%Y-%m-%d %H:%M')
-                    if task['status'] == 'Pending' and now >= due_date - timedelta(minutes=180) and notifOn():
+                    if task['status'] == 'Pending' and now >= due_date - timedelta(hours=3) and notifOn():
                         notification.notify(
                             title=f"Task Due Soon: {task['name']}",
                             message=f"{username}, you have a task: {task['name']} due at {task['due_time']} on {task['due_date']}."
