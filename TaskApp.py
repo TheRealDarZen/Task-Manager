@@ -123,7 +123,7 @@ class TaskApp:
 
         # Frame for clearing all tasks and stats
         clear_tasks_buttons_frame = tk.Frame(self.root, bg='grey')
-        clear_tasks_buttons_frame.pack(padx=10, pady=10, fill='x')
+        clear_tasks_buttons_frame.pack(padx=10, fill='x')
 
         self.clear_all_pending_button = tk.Button(clear_tasks_buttons_frame, text='Clear All Pending Tasks',
                                                   command=self.clear_all_pending_tasks, padx=20, fg='white', bg='grey')
@@ -160,14 +160,17 @@ class TaskApp:
             formatted_due_date = datetime.strptime(due_date, '%d-%m-%Y').strftime('%Y-%m-%d')
             datetime.strptime(formatted_due_date + ' ' + due_time, '%Y-%m-%d %H:%M')
             if task_name and due_date and due_time:
-                task = {'name': task_name, 'due_date': formatted_due_date, 'due_time': due_time, 'priority': priority,
-                        'status': 'Pending'}
-                self.manager.add_task(self.username, task)
-                self.task_entry.delete(0, tk.END)
-                self.due_date_entry.delete(0, tk.END)
-                self.due_time_entry.delete(0, tk.END)
-                self.priority_combobox.current(2)
-                self.load_tasks()
+                if '-' in task_name:
+                    messagebox.showerror('Error', 'Symbol "-" is reserved for app usage only and cannot be used in task name.')
+                else:
+                    task = {'name': task_name, 'due_date': formatted_due_date, 'due_time': due_time, 'priority': priority,
+                            'status': 'Pending'}
+                    self.manager.add_task(self.username, task)
+                    self.task_entry.delete(0, tk.END)
+                    self.due_date_entry.delete(0, tk.END)
+                    self.due_time_entry.delete(0, tk.END)
+                    self.priority_combobox.current(2)
+                    self.load_tasks()
             else:
                 messagebox.showerror('Error', 'Please enter task name, due date and due time')
         except ValueError:

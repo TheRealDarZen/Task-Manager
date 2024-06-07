@@ -98,7 +98,7 @@ class TaskManager:
                                     f" The priority of this task is {task['priority']}.",
                             timeout=30
                         )
-            time.sleep(900) # 15 minutes
+            time.sleep(15) # 15 minutes
 
     def update_status(self, func):
         last_time = datetime.now().strftime('%H:%M')
